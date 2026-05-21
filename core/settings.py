@@ -11,6 +11,15 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+
+# AI API KEY
+AI_API_KEY = os.getenv('AI_API_KEY', default='')
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,7 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-17*7eg$fkj!@pe&fmy=pky8(bg26!@!ks#0#i8yte#6tvbdb4-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', default=True)
 
 ALLOWED_HOSTS = []
 
@@ -73,10 +82,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-CSRF_TRUSTED_ORIGINS = [
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default=[
     'http://127.0.0.1:5500',
     'http://localhost:5500',
-]
+])
 
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5500',
