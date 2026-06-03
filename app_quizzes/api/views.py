@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from models import Quiz
 from permissions import IsQuizOwner
 from serializers import QuizSerializer, QuizCreateSerializer
-from services.quiz_generation_service import create_quiz_from_url
+from services.quiz_generation_service import generate_quiz_from_url
 
 
 class QuizViewSet(ModelViewSet):
@@ -26,6 +26,6 @@ class QuizViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        quiz = create_quiz_from_url(user=request.user, video_url=serializer.validated_data["url"])
+        quiz = generate_quiz_from_url(user=request.user, video_url=serializer.validated_data["url"])
         response_data = QuizSerializer(quiz).data
         return Response(response_data, status=status.HTTP_201_CREATED)
