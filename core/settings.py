@@ -17,8 +17,9 @@ import os
 load_dotenv()
 
 
-# AI API KEY
-AI_API_KEY = os.getenv('AI_API_KEY', default='')
+# GEMINI
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', default='')
+GEMINI_MODEL = os.getenv('GEMINI_MODEL', default='gemini-3.5-flash')
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
