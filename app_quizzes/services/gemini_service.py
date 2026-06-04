@@ -3,8 +3,8 @@ from django.conf import settings
 from google import genai
 
 
-def generate_quiz_from_transcript(transcript):
-    """Generates quiz data from a transcript with Gemini."""
+def create_quiz_data(transcript):
+    """creates quiz data from a transcript with Gemini."""
 
     prompt = build_quiz_prompt(transcript)
     response_text = request_gemini_response(prompt)
