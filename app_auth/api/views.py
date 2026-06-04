@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -8,6 +7,8 @@ from .serializers import RegistrationSerializer
 
 
 class RegistrationView(APIView):
+    """Registers a new user."""
+
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -19,67 +20,76 @@ class RegistrationView(APIView):
 
 
 class LoginTokenView(TokenObtainPairView):
+    """Logs in a user and sets JWT cookies."""
+
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        user = User.objects.get(username=request.data.get('username'))
-        refresh = response.data.get('refresh')
-        access = response.data.get('access')
-        response.set_cookie(
-            key="access_token",
-            httponly=True,
-            secure=False,
-            value=str(access),
-            samesite='Lax'
-        ),
-        response.set_cookie(
-            key="refresh_token",
-            httponly=True,
-            secure=False,
-            value=str(refresh),
-            samesite='Lax'
-        )
-        response.data = {
-            "detail": "Login successfully!",
-            "user": {
-                "id": user.id,
-                "username": user.username,
-                "email": user.email
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.user
+        response_data = {
+            'detail': 'Login successfully!',
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email
             }
         }
+        response = Response(response_data, status=status.HTTP_200_OK)
+        self.set_token_cookies(response, serializer.validated_data)
         return response
+    
+    def set_token_cookies(self, response, token_data):
+        response.set_cookie(
+            key="access_token",
+            value=token_data["access"],
+            httponly=True,
+            secure=False,
+            samesite="Lax",
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=token_data["refresh"],
+            httponly=True,
+            secure=False,
+            samesite="Lax",
+        )
 
 
 class LogoutView(APIView):
+    """Logs out a user by deleting auth cookies."""
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-       response = Response()
-       response.delete_cookie('access_token')
-       response.delete_cookie('refresh_token')
-       response.data = {'message' : 'Sucessfully logged out'}
-       return response
+        response = Response({"detail": "Log-Out successfully! All Tokens will be deleted. Refresh token is now invalid."})
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+        return response
 
 
 class RefreshTokenView(TokenRefreshView):
+    """Refreshes the access token using the refresh cookie."""
+
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get('refresh_token')
         if refresh_token is None:
-            return Response({"detial": "Refresh token not found"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detial": "Refresh token invalid or missing."}, status=status.HTTP_401_UNAUTHORIZED)
 
-        request.data['refresh'] = refresh_token
         serializer = self.get_serializer(data={'refresh': refresh_token})
-        try:
-            serializer.is_valid(raise_exception=True)
-        except:
-            return Response({"detail": "Invalid refresh token "}, status=401)
+        serializer.is_valid(raise_exception=True)
+        response = Response({"detail": "Token refreshed"})
+        self.set_access_cookie(response, serializer.validated_data["access"])
+        return response
         
-        access_token = serializer.validated_data.get("access")
-        response = Response({"detail": "Token refreshed", "access": access_token})
+    def set_access_cookie(self, response, access_token):
         response.set_cookie(
             key="access_token",
-            httponly=True,
             value=access_token,
+            httponly=True,
             secure=False,
-            samesite='Lax'
-        ),
-        return response
+            samesite="Lax",
+        )
