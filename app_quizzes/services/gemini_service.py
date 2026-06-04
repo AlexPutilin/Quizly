@@ -6,12 +6,21 @@ from google import genai
 def generate_quiz_from_transcript(transcript):
     """Generates quiz data from a transcript with Gemini."""
 
+    prompt = build_quiz_prompt(transcript)
+    response_text = request_gemini_response(prompt)
+    cleaned_text = clean_json_reponse(response_text)
+    return json.loads(cleaned_text)
+
+
+def request_gemini_response(prompt):
+    """sends the builded prompt to gemini"""
+
     client = genai.Client(api_key=settings.GEMINI_API_KEY)
     response = client.models.generate_content(
         model=settings.GEMINI_MODEL, 
-        contents=build_quiz_prompt(transcript)
+        contents=prompt
     )
-    return parse_json_response(response.text)
+    return response.text
 
 
 def build_quiz_prompt(transcript):
@@ -28,7 +37,7 @@ def build_quiz_prompt(transcript):
         "question_title": "The question goes here.",
         "question_options": ["Option A", "Option B", "Option C", "Option D"],
         "answer": "The correct answer from the above options"
-        }},
+        }}
     ]
     }}
 
@@ -44,19 +53,10 @@ def build_quiz_prompt(transcript):
     """
 
 
-def parse_json_response(response_text):
-    """Parses Gemini JSON response."""
-
-    cleaned_text = clean_json_text(response_text)
-    return json.loads(cleaned_text)
-
-
-def clean_json_text(response_text):
+def clean_json_reponse(response_text):
     """Removes markdown fences from JSON text."""
 
-    return (
-        response_text
-        .replace("```json", "")
-        .replace("```", "")
-        .strip()
-    )
+    cleaned_text = response_text.strip()
+    cleaned_text = cleaned_text.replace("```json", "")
+    cleaned_text = cleaned_text.replace("```", "")
+    return cleaned_text.strip()
