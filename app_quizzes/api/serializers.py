@@ -4,36 +4,49 @@ from models import Question, Quiz
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    question_options = serializers.SerializerMethodField()
-    answer = serializers.SerializerMethodField()
+    """Serializer for individual quiz questions."""
 
     class Meta:
         model = Question
-        fields = ['id', 'question_title', 'question_options', 'answer', 'created_at', 'updated_at']
-
-    def get_question_options(self, obj):
-        return [obj.option_a, obj.option_b, obj.option_c, obj.option_d]
-    
-    def get_answer(self, obj):
-        options = {
-            'A': obj.option_a,
-            'B': obj.option_b,
-            'C': obj.option_c,
-            'D': obj.option_d,
-        }
-        return options.get(obj.answer)
+        fields = [
+            'id',
+            'question_title',
+            'question_options',
+            'answer',
+            'created_at',
+            'updated_at'
+        ]
+        read_only_fields = fields
 
 
 class QuizSerializer(serializers.ModelSerializer):
+    """Serializer for quiz output and partial updates."""
+
     questions = QuestionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Quiz
-        fields = ['id', 'title', 'description', 'status', 'created_at', 'updated_at', 'video_url', 'questions',]
-        read_only_fields = ['id', 'created_at', 'updated_at', 'video_url', 'questions',]
+        fields = [
+            'id',
+            'title',
+            'description',
+            'created_at',
+            'updated_at',
+            'video_url',
+            'questions',
+        ]
+        read_only_fields = [
+            'id',
+            'created_at',
+            'updated_at',
+            'video_url',
+            'questions',
+        ]
 
 
 class QuizCreateSerializer(serializers.Serializer):
+    """Serializer for creating quizzes via YouTube URL."""
+    
     url = serializers.URLField()
 
     def validate_url(self, value):
