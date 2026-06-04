@@ -3,33 +3,32 @@ from rest_framework import serializers
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    """Serializer for user registration."""
+
     confirmed_password = serializers.CharField(write_only=True)
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'confirmed_password']
         extra_kwargs = {
-            'password': {
-                'write_only': True
-            },
-            'email': {
-                'required': True
-            }
+            'password': {'write_only': True},
+            'email': {'required': True}
         }
 
-    def validate_confirmed_password(self, value):
-        password = self.initial_data.get('password')
-        if password and value and password != value:
-            raise serializers.ValidationError('Passwords do not match')
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Username already exists")
         return value
-
+    
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError('Email already exists')
         return value
 
-    def save(self):
-        password = self.validated_data['password']
-        account = User(email=self.validated_data['email'], username=self.validated_data['username'])
-        account.set_password(password)
-        account.save()
-        return account
+    def validate(self, data):
+        if data["password"] != data["confirmed_password"]:
+            raise serializers.ValidationError("Passwords do not match.")
+        return data
+
+    def create(self, validated_data):
+        validated_data.pop("confirmed_password")
+        return User.objects.create_user(**validated_data)
