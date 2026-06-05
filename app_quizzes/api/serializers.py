@@ -50,12 +50,16 @@ class QuizCreateSerializer(serializers.Serializer):
     url = serializers.URLField()
 
     def validate_url(self, value):
+        """Check if the URL contains a valid YouTube video ID."""
+
         parsed_url = urlparse(value)
         if not self.has_valid_youtube_video_id(parsed_url):
             raise serializers.ValidationError("Please enter a valid YouTube-URL")
         return value
     
     def has_valid_youtube_video_id(self, parsed_url):
+        """Return true if the parsed URL has a YouTube video ID."""
+        
         hostname = parsed_url.hostname or ''
         if hostname == 'youtu.be':
             return bool(parsed_url.path.strip('/'))

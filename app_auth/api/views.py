@@ -12,6 +12,8 @@ class RegistrationView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """Create a new user account."""
+
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -25,6 +27,8 @@ class LoginTokenView(TokenObtainPairView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+        """Validate user credentials and set auth cookies."""
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.user
@@ -41,6 +45,8 @@ class LoginTokenView(TokenObtainPairView):
         return response
     
     def set_token_cookies(self, response, token_data):
+        """Set access and refresh tokens as HTTP-only cookies."""
+
         response.set_cookie(
             key="access_token",
             value=token_data["access"],
@@ -63,6 +69,8 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        """Delete auth cookies from the response."""
+
         response = Response({"detail": "Log-Out successfully! All Tokens will be deleted. Refresh token is now invalid."})
         response.delete_cookie('access_token')
         response.delete_cookie('refresh_token')
@@ -75,6 +83,8 @@ class RefreshTokenView(TokenRefreshView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+        """Create a new access token from the refresh cookie."""
+
         refresh_token = request.COOKIES.get('refresh_token')
         if refresh_token is None:
             return Response({"detial": "Refresh token invalid or missing."}, status=status.HTTP_401_UNAUTHORIZED)
@@ -86,6 +96,8 @@ class RefreshTokenView(TokenRefreshView):
         return response
         
     def set_access_cookie(self, response, access_token):
+        """Set the new access token as an HTTP-only cookie."""
+        
         response.set_cookie(
             key="access_token",
             value=access_token,
