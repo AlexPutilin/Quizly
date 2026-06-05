@@ -10,7 +10,7 @@ from app_quizzes.services.quiz_generation_service import generate_quiz_from_url
 class QuizViewSet(viewsets.ModelViewSet):
     """API for quiz creation, display, modification, and deletion."""
 
-    permission_classes = [IsAuthenticated, IsQuizOwner]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = Quiz.objects.select_related('user')
