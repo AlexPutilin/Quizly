@@ -1,10 +1,10 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from models import Quiz
-from permissions import IsQuizOwner
-from serializers import QuizSerializer, QuizCreateSerializer
-from services.quiz_generation_service import generate_quiz_from_url
+from .permissions import IsQuizOwner
+from .serializers import QuizSerializer, QuizCreateSerializer
+from app_quizzes.models import Quiz
+from app_quizzes.services.quiz_generation_service import generate_quiz_from_url
 
 
 class QuizViewSet(viewsets.ModelViewSet):

@@ -1,6 +1,6 @@
 from urllib.parse import urlparse, parse_qs
 from rest_framework import serializers
-from models import Question, Quiz
+from app_quizzes.models import Question, Quiz
 
 
 class QuestionSerializer(serializers.ModelSerializer):

@@ -1,9 +1,9 @@
 import tempfile
 from django.db import transaction
 from models import Question, Quiz
-from services.gemini_service import create_quiz_data
-from services.transcription_service import transcribe_audio
-from services.youtube_service import download_youtube_audio
+from .gemini_service import create_quiz_data
+from .transcription_service import transcribe_audio
+from .youtube_service import download_youtube_audio
 
 
 def generate_quiz_from_url(user, video_url):
