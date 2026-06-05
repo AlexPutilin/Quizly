@@ -65,7 +65,7 @@ source .venv/bin/activate
 Install dependencies:
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 
@@ -158,8 +158,8 @@ Request body:
 ```json
 {
   "username": "your_username",
-  "password": "your_password",
-  "confirmed_password": "your_confirmed_password",
+  "password": "super_password_1234",
+  "confirmed_password": "super_password_1234",
   "email": "your_email@example.com"
 }
 ```
