@@ -1,6 +1,6 @@
 import tempfile
 from django.db import transaction
-from models import Question, Quiz
+from app_quizzes.models import Question, Quiz
 from .gemini_service import create_quiz_data
 from .transcription_service import transcribe_audio
 from .youtube_service import download_youtube_audio
